@@ -11,6 +11,7 @@ class MpesaC2bCredential:
     api_URL = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
 
 
+
 class MpesaAccessToken:
     r = requests.get(MpesaC2bCredential.api_URL,
                      auth=HTTPBasicAuth(MpesaC2bCredential.consumer_key, MpesaC2bCredential.consumer_secret))

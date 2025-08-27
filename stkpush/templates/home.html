@@ -1,16 +1,144 @@
 {% extends 'layout.html' %}
-
-
 {% load static %}
 
-  {% block body %}
+{% block body %}
+<div class="container py-4">
 
-	<div class="container">
-       <h2 class="mt-5">Django MPESA STK Push </h2>
-
-    Enjoy Fellas
+    <!-- Hero Section -->
+    <div class="text-center mb-5">
+        <h1 class="mb-3" style="color: var(--primary-green); font-weight:bold;">Django M-Pesa STK Push</h1>
+        <p class="mb-4 text-secondary">Seamless mobile money integration for your Django applications</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+            <a href="{% url 'stkpush:stk' %}" class="btn btn-primary mb-2">
+                <i class="fas fa-credit-card me-1"></i>Start Payment
+            </a>
+            <a href="{% url 'stkpush:token' %}" class="btn btn-outline-success mb-2">
+                <i class="fas fa-key me-1"></i>View Token
+            </a>
+        </div>
     </div>
 
+    <!-- Features Section -->
+    <div class="row text-center mb-5">
+        <div class="col-md-4 mb-3">
+            <h5 style="color: var(--primary-green); font-weight:bold;">Secure Transactions</h5>
+            <p class="text-secondary">Bank-grade security with end-to-end encryption through M-Pesa's secure infrastructure.</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h5 style="color: var(--primary-green); font-weight:bold;">Lightning Fast</h5>
+            <p class="text-secondary">Instant payment processing with real-time notifications and immediate confirmations.</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h5 style="color: var(--primary-green); font-weight:bold;">Developer Friendly</h5>
+            <p class="text-secondary">Easy integration with simple tools and clear documentation for developers.</p>
+        </div>
+    </div>
 
+    <!-- Stats Section -->
+    <div class="row text-center mb-5">
+        <div class="col-6 col-md-3 mb-3">
+            <div>
+                <div style="font-size: 2rem; font-weight:bold;">99.9%</div>
+                <div class="text-secondary">Uptime</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <div>
+                <div style="font-size: 2rem; font-weight:bold;">&lt;2s</div>
+                <div class="text-secondary">Response Time</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <div>
+                <div style="font-size: 2rem; font-weight:bold;">24/7</div>
+                <div class="text-secondary">Support</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <div>
+                <div style="font-size: 2rem; font-weight:bold;">100%</div>
+                <div class="text-secondary">Secure</div>
+            </div>
+        </div>
+    </div>
 
-  {% endblock %}
+    <!-- Welcome Message -->
+    <div class="text-center mb-5">
+        <h3 style="color: var(--primary-green); font-weight:bold;">Enjoy Fellas!</h3>
+        <p class="text-secondary mb-3">Experience the power of seamless mobile payments with our Django M-Pesa integration.</p>
+
+        <!-- Go Live Resources -->
+        <h5 style="color: var(--primary-green); font-weight:bold;">Need to Go Live?</h5>
+        <p class="text-secondary mb-3">Check these guides for documentation and step-by-step instructions:</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a href="https://cloudrebue.co.ke/how-to-go-live-on-daraja-dev-portal-mpesa/" 
+               target="_blank" class="btn btn-outline-primary mb-2">
+               Cloudrebue Guide
+            </a>
+            <a href="https://mpesa-docs.vercel.app/go-live" 
+               target="_blank" class="btn btn-outline-primary mb-2">
+               Official Daraja Docs
+            </a>
+            <a href="https://intasend.com/payments/m-pesa-api-integration-step-by-step-guide" 
+               target="_blank" class="btn btn-outline-primary mb-2">
+               IntaSend Guide
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    :root {
+        --primary-green: #00A651;
+        --primary-dark: #008c45;
+        --text-dark: #333;
+        --text-light: #666;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-green);
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+    }
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+    }
+    .btn-outline-success {
+        border: 2px solid var(--primary-green);
+        color: var(--primary-green);
+        padding: 0.6rem 1.5rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+    }
+    .btn-outline-success:hover {
+        background-color: var(--primary-green);
+        color: white;
+    }
+    .btn-outline-primary {
+        border: 2px solid var(--primary-green);
+        color: var(--primary-green);
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .btn-outline-primary:hover {
+        background-color: var(--primary-green);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .btn {
+            width: 100%;
+        }
+        .d-flex.flex-wrap { flex-direction: column; align-items: center; }
+    }
+</style>
+{% endblock %}

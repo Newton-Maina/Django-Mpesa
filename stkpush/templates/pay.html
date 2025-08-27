@@ -1,40 +1,274 @@
 {% extends 'layout.html' %}
-
 {% load static %}
 
-  {% block body %}
-
+{% block body %}
 <div class="container">
-
-    <div class="row">
-
-
-              <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
-                    <strong>{{message}}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-
-        <div class="col-md-5">
-
-            <form method="POST" action="{% url 'stkpush:pay'%}">
-                {% csrf_token %}
-
-                <label class="form-label mt-5">Phone Number</label>
-                <input type="number" name="phone" value="254" class="form-control">
-
-                <label class="form-label mt-5">Amount</label>
-                <input type="number" name="amount" class="form-control">
-
-                <input type="submit" name="submit" class="form-control mt-5 btn btn-success" value="pay">
-            </form>
-
+    <div class="row justify-content-center">
+        <div class="col-12 text-center mb-4">
+            <div class="payment-header">
+                <div class="payment-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h2 class="payment-title">M-Pesa STK Push Payment</h2>
+                <p class="payment-subtitle">Enter your details below to initiate a secure payment</p>
+            </div>
         </div>
 
-        <div class="col-md-7">
+        {% if messages %}
+            <div class="col-12 mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show enhanced-alert" role="alert">
+                        <div class="alert-icon">
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif message.tags == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="alert-content">
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
+        <div class="col-lg-5 col-md-6">
+            <div class="payment-form-card">
+                <div class="card-header">
+                    <h4><i class="fas fa-credit-card me-2"></i>Payment Details</h4>
+                    <div class="security-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Secured by M-Pesa</span>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{% url 'stkpush:pay' %}" id="payment-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-phone me-2"></i>Phone Number
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" name="phone" value="254" class="form-control phone-input" 
+                                    placeholder="712345678" required>
+                            <div class="input-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                        </div>
+                        <small class="form-text">Enter your M-Pesa registered phone number</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-money-bill-wave me-2"></i>Amount (KES)
+                        </label>
+                        <div class="input-wrapper">
+                            <div class="currency-symbol">KES</div>
+                            <input type="number" name="amount" class="form-control amount-input" 
+                                    placeholder="0.00" min="1" step="0.01" required>
+                        </div>
+                        <small class="form-text">Minimum amount: KES 1.00</small>
+                    </div>
+
+                    <button type="submit" name="submit" class="btn-pay" id="pay-button">
+                        <span class="btn-content">
+                            <i class="fas fa-lock me-2"></i>
+                            <span class="btn-text">Initiate Transaction</span>
+                        </span>
+                        <div class="btn-loader">
+                            <div class="spinner"></div>
+                            <span>Processing...</span>
+                        </div>
+                    </button>
+
+                    <div class="payment-info">
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Instant processing</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>256-bit encryption</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>M-Pesa verified</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
+        <div class="col-lg-7 col-md-6">
+            <div class="debug-panel">
+                <div class="debug-header">
+                    <h5><i class="fas fa-code me-2"></i>Developer Console</h5>
+                    {% if debug %}
+                        <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#debugPanel" 
+                                aria-expanded="false" aria-controls="debugPanel">
+                            <i class="fas fa-terminal me-1"></i>Toggle Debug
+                        </button>
+                    {% else %}
+                        <span class="debug-status">
+                            <i class="fas fa-info-circle me-1"></i>No debug data available
+                        </span>
+                    {% endif %}
+                </div>
+
+                {% if debug %}
+                    <div class="collapse show" id="debugPanel">
+                        <div class="debug-content">
+                            <div class="debug-section">
+                                <h6><i class="fas fa-paper-plane me-2"></i>Request Payload</h6>
+                                <div class="debug-code-block" id="request-payload">
+                                    <pre><code>{{ debug.request_payload|safe }}</code></pre>
+                                    <button class="copy-btn" onclick="copyToClipboard('request-payload')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="debug-section">
+                                <h6><i class="fas fa-server me-2"></i>Status Code</h6>
+                                <div class="debug-code-block">
+                                    <pre><code>{{ debug.status_code }}</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="debug-section">
+                                <h6><i class="fas fa-file-code me-2"></i>Raw Response</h6>
+                                <div class="debug-code-block" id="raw-response">
+                                    <pre><code>{{ debug.response_text }}</code></pre>
+                                    <button class="copy-btn" onclick="copyToClipboard('raw-response')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="debug-section">
+                                <h6><i class="fas fa-brackets-curly me-2"></i>JSON Response</h6>
+                                <div class="debug-code-block" id="json-response">
+                                    <pre><code>{{ debug.response_json|default:"No JSON parsed" }}</code></pre>
+                                    <button class="copy-btn" onclick="copyToClipboard('json-response')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="no-debug">
+                        <i class="fas fa-bug fa-3x mb-3"></i>
+                        <h6>Debug Information</h6>
+                        <p>Submit a payment to see detailed request and response information here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
 
- {% endblock %}
+{% block extra_css %}
+<style>
+:root {
+    --primary-green: #00A651;
+    --secondary-green: #E8F7F0;
+    --text-dark: #333;
+    --text-light: #666;
+    --border-color: #e0e0e0;
+    --shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Payment Header */
+.payment-header {
+    background: linear-gradient(135deg, rgba(0,166,81,0.1), rgba(232,247,240,0.8));
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+}
+.payment-icon i { font-size: 2.5rem; color: var(--primary-green); margin-bottom: 1rem; animation: pulse 2s infinite; }
+.payment-title { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark); }
+.payment-subtitle { font-size: 1rem; color: var(--text-light); }
+
+/* Payment Form */
+.payment-form-card { background: #fff; border-radius: 12px; box-shadow: var(--shadow); padding: 1rem; border: 1px solid var(--border-color); }
+.card-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--secondary-green); border-radius: 10px 10px 0 0; border-bottom: 1px solid var(--border-color); }
+.security-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--primary-green); }
+
+.form-group { margin-bottom: 1rem; }
+.form-label { font-weight: 500; color: var(--text-dark); margin-bottom: 0.25rem; display: flex; align-items: center; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.country-code, .currency-symbol { background: var(--secondary-green); padding: 0.4rem; border: 1px solid var(--border-color); border-right: none; border-radius: 5px 0 0 5px; font-size: 0.85rem; color: var(--text-dark); }
+.form-control { border-radius: 0 5px 5px 0; padding-left: 2.2rem; flex: 1; }
+.input-icon { position: absolute; left: 0.5rem; color: var(--text-light); }
+.form-control:focus { border-color: var(--primary-green); box-shadow: 0 0 5px rgba(0,166,81,0.3); outline: none; }
+.form-text { color: var(--text-light); font-size: 0.8rem; }
+
+.btn-pay { width: 100%; padding: 0.5rem 1rem; background: var(--primary-green); border: none; border-radius: 8px; color: #fff; font-weight: 500; position: relative; overflow: hidden; transition: background 0.3s; }
+.btn-pay:hover { background: #008c45; }
+.btn-pay:disabled { background: #ccc; cursor: not-allowed; }
+.btn-content { display: flex; align-items: center; justify-content: center; }
+.btn-loader { display: none; align-items: center; gap: 0.5rem; }
+.btn-pay.loading .btn-content { display: none; }
+.btn-pay.loading .btn-loader { display: flex; }
+.spinner { width: 1.3rem; height: 1.3rem; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+
+.payment-info { display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.8rem; color: var(--text-light); }
+.info-item { display: flex; align-items: center; gap: 0.5rem; }
+
+/* Debug Panel */
+.debug-panel { background: #fff; border-radius: 12px; box-shadow: var(--shadow); padding: 1rem; border: 1px solid var(--border-color); }
+.debug-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.debug-content { max-height: 350px; overflow-y: auto; overflow-x: hidden; padding-right: 0.5rem; }
+.debug-section { margin-bottom: 1rem; }
+.debug-code-block { position: relative; background: #f8f9fa; border-radius: 6px; padding: 0.75rem; border: 1px solid var(--border-color); }
+.debug-code-block pre { white-space: pre-wrap; word-wrap: break-word; overflow-x: hidden; margin: 0; }
+.copy-btn { position: absolute; top: 0.3rem; right: 0.3rem; background: none; border: none; color: var(--text-light); cursor: pointer; transition: color 0.3s; }
+.copy-btn:hover { color: var(--primary-green); }
+.no-debug { text-align: center; padding: 1.5rem; color: var(--text-light); }
+
+.enhanced-alert { display: flex; align-items: center; gap: 0.5rem; border-radius: 8px; padding: 0.75rem; }
+.alert-icon i { font-size: 1.2rem; }
+.alert-content { flex: 1; }
+
+/* Animations */
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .payment-header { padding: 1rem; }
+    .payment-icon i { font-size: 2rem; }
+    .payment-info { flex-direction: column; gap: 0.5rem; }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(elementId) {
+    const codeElement = document.querySelector(`#${elementId} pre code`);
+    const text = codeElement.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(`#${elementId} .copy-btn`);
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+    }).catch(err => console.error('Failed to copy: ', err));
+}
+
+document.getElementById('payment-form').addEventListener('submit', function(e) {
+    const button = document.getElementById('pay-button');
+    button.classList.add('loading');
+    button.disabled = true;
+});
+</script>
+{% endblock %}
