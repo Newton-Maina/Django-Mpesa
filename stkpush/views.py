@@ -1,12 +1,13 @@
-from django.http import HttpResponse
+from django.http import JsonResponse
 import requests
-from requests.auth import HTTPBasicAuth
 import json
-from .credentials import MpesaAccessToken, LipanaMpesaPpassword
+from .credentials import MpesaAccessToken, LipanaMpesaPassword
 from django.shortcuts import render
 from django.contrib import messages
 import re
 import logging
+from decouple import config
+from datetime import datetime
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -16,35 +17,46 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-
 def home(request):
     return render(request, 'home.html', {'navbar': 'home'})
 
-
 def token(request):
-    consumer_key = '77bgGpmlOxlgJu6oEXhEgUgnu0j2WYxA'
-    consumer_secret = 'viM8ejHgtEmtPTHd'
-    api_URL = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
-
     try:
-        r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
-        r.raise_for_status()  # Raise exception for HTTP errors
-        mpesa_access_token = r.json()
-        validated_mpesa_access_token = mpesa_access_token.get("access_token")
+        access_token = MpesaAccessToken.get_access_token()
+        if not access_token:
+            messages.error(request, "Failed to obtain access token.")
+            return render(request, 'token.html', {
+                "token": None,
+                "error": "No access token returned.",
+                "environment": "Production",
+                "current_time": datetime.now(),
+                "short_code": config('MPESA_SHORT_CODE'),
+                "callback_url": config('MPESA_CALLBACK_URL')
+            })
 
-        if not validated_mpesa_access_token:
-            messages.error(request, "Failed to get access token")
-            return render(request, 'token.html', {"token": None})
+        return render(request, 'token.html', {
+            "token": access_token,
+            "environment": "Production",
+            "current_time": datetime.now(),
+            "short_code": config('MPESA_SHORT_CODE'),
+            "callback_url": config('MPESA_CALLBACK_URL')
+        })
 
-        return render(request, 'token.html', {"token": validated_mpesa_access_token})
-    except requests.RequestException as e:
-        messages.error(request, f"Error fetching token: {str(e)}")
-        return render(request, 'token.html', {"token": None})
-
+    except Exception as err:
+        messages.error(request, f"An error occurred: {err}")
+        logger.error(f"Error in token view: {err}")
+        return render(request, 'token.html', {
+            "token": access_token,
+            "environment": "Production",
+            "current_time": datetime.now(),
+            "short_code": config('MPESA_SHORT_CODE'),
+            "callback_url": config('MPESA_CALLBACK_URL'),
+            "debug_token": access_token
+        })
 
 
 def pay(request):
-    debug_info = {}  # Optional: pass to template for real-time viewing
+    debug_info = {}
 
     if request.method == "POST":
         phone = request.POST.get('phone')
@@ -52,10 +64,14 @@ def pay(request):
 
         # Validate phone
         if not phone or not re.match(r'^\d{10,12}$', phone):
-            msg = "Invalid phone number"
+            msg = "Invalid phone number. Must be 10-12 digits (e.g., 254712345678)."
             messages.error(request, msg)
             logger.warning(msg)
             return render(request, 'pay.html', {'navbar': 'stk', 'debug': debug_info})
+
+        # Ensure phone starts with 254
+        if not phone.startswith('254'):
+            phone = '254' + phone[-9:]
 
         # Validate amount
         try:
@@ -63,34 +79,35 @@ def pay(request):
             if amount <= 0:
                 raise ValueError()
         except (ValueError, TypeError):
-            msg = "Invalid amount"
+            msg = "Invalid amount. Must be a positive number."
             messages.error(request, msg)
             logger.warning(msg)
             return render(request, 'pay.html', {'navbar': 'stk', 'debug': debug_info})
 
         # Get access token
-        access_token = MpesaAccessToken.validated_mpesa_access_token
+        access_token = MpesaAccessToken.get_access_token()
         if not access_token:
-            msg = "Access token is missing or invalid"
+            msg = "Failed to obtain access token"
             messages.error(request, msg)
             logger.error(msg)
             return render(request, 'pay.html', {'navbar': 'stk', 'debug': debug_info})
 
         # API request
-        api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        api_url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
         headers = {"Authorization": f"Bearer {access_token}"}
+        password, timestamp = LipanaMpesaPassword.generate_password()
         payload = {
-            "BusinessShortCode": LipanaMpesaPpassword.Business_short_code,
-            "Password": LipanaMpesaPpassword.decode_password,
-            "Timestamp": LipanaMpesaPpassword.lipa_time,
+            "BusinessShortCode": LipanaMpesaPassword.Business_short_code,
+            "Password": password,
+            "Timestamp": timestamp,
             "TransactionType": "CustomerPayBillOnline",
             "Amount": int(amount),
             "PartyA": phone,
-            "PartyB": LipanaMpesaPpassword.Business_short_code,
+            "PartyB": LipanaMpesaPassword.Business_short_code,
             "PhoneNumber": phone,
-            "CallBackURL": "https://your-domain.com/callback",
-            "AccountReference": "NMG Softwares",
-            "TransactionDesc": "Web Development Charges"
+            "CallBackURL": config('MPESA_CALLBACK_URL'),
+            "AccountReference": "Your Mpesa-Test",
+            "TransactionDesc": "Payment for your Company"
         }
 
         debug_info['request_payload'] = payload
@@ -100,7 +117,7 @@ def pay(request):
             debug_info['status_code'] = response.status_code
             debug_info['response_text'] = response.text
 
-            response.raise_for_status()  # HTTP errors
+            response.raise_for_status()
             res_data = response.json()
             debug_info['response_json'] = res_data
             logger.info(f"STK Push response: {res_data}")
@@ -139,7 +156,16 @@ def pay(request):
 
     return render(request, 'pay.html', {'navbar': 'stk'})
 
-
-
 def stk(request):
     return render(request, 'pay.html', {'navbar': 'stk'})
+
+def callback(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            logger.info(f"Callback received: {data}")
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+        except json.JSONDecodeError:
+            logger.error("Failed to parse callback JSON")
+            return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400)
+    return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid request"}, status=400)

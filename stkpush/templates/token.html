@@ -1,89 +1,181 @@
-<!-- token.html -->
 {% extends 'layout.html' %}
 {% load static %}
 
-{% block body %}
-<div class="container py-4">
+{% block extra_css %}
+<style>
+/* Token card enhancements */
+.token-card {
+    transition: var(--transition);
+    animation: fadeInUp 0.6s ease-out;
+}
 
+.token-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--glow-hover);
+}
+
+/* Tab button enhancements */
+.tab-btn {
+    transition: var(--transition-fast);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--primary-green), var(--accent));
+    color: var(--text-primary) !important;
+    box-shadow: var(--glow);
+}
+
+.tab-btn:hover {
+    transform: translateY(-2px);
+    background: var(--surface-elevated);
+    color: var(--text-primary) !important;
+}
+
+/* Code block styling */
+pre {
+    background: var(--background-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-sm);
+    padding: 1.5rem;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+code {
+    color: var(--accent);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    pre {
+        padding: 1rem;
+        font-size: 0.85rem;
+    }
+
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .token-card {
+        padding: 1rem;
+    }
+}
+
+/* Animation for token card */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
     <!-- Header Section -->
-    <div class="text-center mb-4">
-        <h2 class="text-success fw-bold"><i class="fas fa-key me-1"></i>M-Pesa Access Token</h2>
-        <p class="text-secondary">Your secure authentication token for API access</p>
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold mb-3">
+            <span class="gradient-text"><i class="fas fa-key me-2"></i>M-Pesa Access Token</span>
+        </h1>
+        <p class="lead text-secondary">Securely manage your authentication token for seamless API access</p>
     </div>
 
     <!-- Token Display Section -->
-    <div class="row justify-content-center mb-4">
+    <div class="row justify-content-center mb-5">
         <div class="col-lg-8 col-md-10">
-            <div class="border rounded p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                    <div>
-                        <strong>Active Token:</strong> <span class="text-success">Live</span>
+            <div class="card token-card glass">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                        <div>
+                            <strong class="text-primary-soft">Active Token:</strong> 
+                            <span class="gradient-text">Live</span>
+                        </div>
+                        <div class="d-flex gap-2 mt-2 mt-md-0">
+                            <button class="btn btn-outline-primary btn-sm tab-btn" onclick="refreshToken()" id="refresh-btn">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                                <small>Generate New</small>
+                            </button>
+                            <button class="btn btn-primary btn-sm tab-btn" onclick="copyToken()" id="copy-btn">
+                                <i class="fas fa-copy me-1"></i>Copy
+                                <small>Token to Clipboard</small>
+                            </button>
+                        </div>
                     </div>
-                    <div class="d-flex gap-2 mt-2 mt-md-0">
-                        <button class="btn btn-outline-success btn-sm" onclick="refreshToken()" id="refresh-btn">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
-                        <button class="btn btn-success btn-sm" onclick="copyToken()" id="copy-btn">
-                            <i class="fas fa-copy me-1"></i>Copy
-                        </button>
+                    <div class="mb-4">
+                        <label class="form-label text-primary-soft"><i class="fas fa-key me-1"></i>Bearer Token</label>
+                        <textarea class="form-control glass" id="token-value" rows="3" readonly style="overflow-wrap: break-word; background: var(--surface);">{{ token|default:"No token available" }}</textarea>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="fas fa-key me-1"></i>Bearer Token</label>
-                    <textarea class="form-control" id="token-value" rows="3" readonly style="overflow-wrap: break-word;">{{ token|default:"No token available" }}</textarea>
-                </div>
-                <div class="row text-secondary">
-                    <div class="col-md-6 mb-2">
-                        <strong>Generated:</strong> <span id="generated-time">{{ current_time|date:"M d, Y H:i:s" }}</span>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <strong>Expires:</strong> 3600 seconds
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <strong>Environment:</strong> {{ environment|default:"Sandbox" }}
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <strong>Type:</strong> OAuth 2.0
+                    <div class="row text-secondary">
+                        <div class="col-md-6 mb-2">
+                            <strong>Generated:</strong> <span id="generated-time">{{ current_time|date:"M d, Y H:i:s" }}</span>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Expires:</strong> 3600 seconds
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Environment:</strong> Production
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Type:</strong> OAuth 2.0
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Usage Instructions -->
-    <div class="row justify-content-center mb-4">
+    {% if debug_token %}
+    <div class="row justify-content-center mb-5">
         <div class="col-lg-8 col-md-10">
-            <div class="border rounded p-3">
-                <h5 class="mb-3"><i class="fas fa-code me-1"></i>Usage Instructions</h5>
-                <div class="mb-2 d-flex flex-wrap gap-2">
-                    <button class="btn btn-outline-secondary btn-sm active" onclick="showTab('curl')">cURL</button>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="showTab('python')">Python</button>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="showTab('javascript')">JavaScript</button>
-                </div>
+            <div class="alert alert-info glass">
+                <strong>Debug Token:</strong> {{ debug_token }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
-                <!-- cURL Tab -->
-                <div id="curl-tab" class="tab-content mb-2 active">
-<pre style="white-space: pre-wrap; word-wrap: break-word;"><code>curl -X POST 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest' \
+    <!-- Usage Instructions -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 col-md-10">
+            <div class="card glass">
+                <div class="card-body">
+                    <h3 class="fw-bold mb-4 gradient-text"><i class="fas fa-code me-2"></i>Usage Instructions</h3>
+                    <div class="mb-4 d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-primary btn-sm tab-btn active" onclick="showTab('curl')">cURL</button>
+                        <button class="btn btn-outline-primary btn-sm tab-btn" onclick="showTab('python')">Python</button>
+                        <button class="btn btn-outline-primary btn-sm tab-btn" onclick="showTab('javascript')">JavaScript</button>
+                    </div>
+
+                    <!-- cURL Tab -->
+                    <div id="curl-tab" class="tab-content mb-2 active">
+                        <pre><code>curl -X POST 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest' \
 -H 'Authorization: Bearer {{ token }}' \
 -H 'Content-Type: application/json' \
 -d '{
-  "BusinessShortCode": "174379",
-  "Password": "base64_encoded_password",
-  "Timestamp": "20231025120000",
-  "TransactionType": "CustomerPayBillOnline",
-  "Amount": 1,
-  "PartyA": "254712345678",
-  "PartyB": "174379",
-  "PhoneNumber": "254712345678",
-  "CallBackURL": "https://yourdomain.com/callback",
-  "AccountReference": "Test123",
-  "TransactionDesc": "Payment of X"
+    "BusinessShortCode": "{{ short_code }}",
+    "Password": "base64_encoded_password",
+    "Timestamp": "20250911101500",
+    "TransactionType": "CustomerPayBillOnline",
+    "Amount": 1,
+    "PartyA": "254703138300",
+    "PartyB": "{{ short_code }}",
+    "PhoneNumber": "254703138300",
+    "CallBackURL": "{{ callback_url }}",
+    "AccountReference": "Your Mpesa-Test",
+    "TransactionDesc": "Payment for Your Company"
 }'</code></pre>
-                </div>
+                    </div>
 
-                <!-- Python Tab -->
-                <div id="python-tab" class="tab-content mb-2" style="display:none;">
-<pre style="white-space: pre-wrap; word-wrap: break-word;"><code>import requests
+                    <!-- Python Tab -->
+                    <div id="python-tab" class="tab-content mb-2" style="display:none;">
+                        <pre><code>import requests
 import json
 
 headers = {
@@ -92,55 +184,56 @@ headers = {
 }
 
 payload = {
-    "BusinessShortCode": "174379",
+    "BusinessShortCode": "{{ short_code }}",
     "Password": "base64_encoded_password",
-    "Timestamp": "20231025120000",
+    "Timestamp": "20250911101500",
     "TransactionType": "CustomerPayBillOnline",
     "Amount": 1,
-    "PartyA": "254712345678",
-    "PartyB": "174379",
-    "PhoneNumber": "254712345678",
-    "CallBackURL": "https://yourdomain.com/callback",
-    "AccountReference": "Test123",
-    "TransactionDesc": "Payment of X"
+    "PartyA": "254703138300",
+    "PartyB": "{{ short_code }}",
+    "PhoneNumber": "254703138300",
+    "CallBackURL": "{{ callback_url }}",
+    "AccountReference": "Your Mpesa-Test",
+    "TransactionDesc": "Payment for Your Company"
 }
 
 response = requests.post(
-    'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+    'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
     headers=headers,
     data=json.dumps(payload)
 )
 
 print(response.json())</code></pre>
-                </div>
+                    </div>
 
-                <!-- JavaScript Tab -->
-                <div id="javascript-tab" class="tab-content mb-2" style="display:none;">
-<pre style="white-space: pre-wrap; word-wrap: break-word;"><code>const payload = {
-  "BusinessShortCode": "174379",
-  "Password": "base64_encoded_password",
-  "Timestamp": "20231025120000",
-  "TransactionType": "CustomerPayBillOnline",
-  "Amount": 1,
-  "PartyA": "254712345678",
-  "PartyB": "174379",
-  "PhoneNumber": "254712345678",
-  "CallBackURL": "https://yourdomain.com/callback",
-  "AccountReference": "Test123",
-  "TransactionDesc": "Payment of X"
+                    <!-- JavaScript Tab -->
+                    <div id="javascript-tab" class="tab-content mb-2" style="display:none;">
+                        <pre><code>const payload = {
+    "BusinessShortCode": "{{ short_code }}",
+    "Password": "base64_encoded_password",
+    "Timestamp": "20250911101500",
+    "TransactionType": "CustomerPayBillOnline",
+    "Amount": 1,
+    "PartyA": "254703138300",
+    "PartyB": "{{ short_code }}",
+    "PhoneNumber": "254703138300",
+    "CallBackURL": "{{ callback_url }}",
+    "AccountReference": "Your Mpesa-Test",
+    "TransactionDesc": "Payment for Your Company"
 };
 
-fetch('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer {{ token }}',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(payload)
+fetch('https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
+    method: 'POST',
+    headers: {
+        'Authorization': 'Bearer {{ token }}',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
 })
 .then(response => response.json())
 .then(data => console.log(data))
 .catch(error => console.error('Error:', error));</code></pre>
+                    </div>
                 </div>
             </div>
         </div>
@@ -149,30 +242,72 @@ fetch('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
     <!-- Security Notice -->
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
-            <div class="alert alert-warning">
-                <strong>Security Notice:</strong> Keep your access token secure and never share it publicly. Tokens expire after 1 hour. Store tokens securely.
+            <div class="alert alert-warning glass">
+                <strong><i class="fas fa-shield-alt me-2"></i>Security Notice:</strong> 
+                Keep your access token secure and never share it publicly. Tokens expire after 1 hour. Store tokens securely.
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy token functionality
     function copyToken() {
         const token = document.getElementById('token-value');
-        navigator.clipboard.writeText(token.value).then(() => alert('Token copied!'));
+        navigator.clipboard.writeText(token.value).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy me-1"></i>Copy <small>Token to Clipboard</small>';
+            }, 2000);
+        });
     }
 
+    // Refresh token functionality
     function refreshToken() {
-        const generated = document.getElementById('generated-time');
-        generated.textContent = new Date().toLocaleString();
-        alert('Token refreshed!');
+        const btn = document.getElementById('refresh-btn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+        window.location.reload();
     }
 
+    // Tab switching functionality
     function showTab(tab) {
         document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
         document.getElementById(tab + '-tab').style.display = 'block';
-        document.querySelectorAll('.btn-outline-secondary').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
     }
+
+    // Expose functions to global scope
+    window.copyToken = copyToken;
+    window.refreshToken = refreshToken;
+    window.showTab = showTab;
+
+    // Card animation on load
+    const cards = document.querySelectorAll('.token-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+
+    // Tab button hover effects
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+        });
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
 </script>
 {% endblock %}

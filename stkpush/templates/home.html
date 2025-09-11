@@ -1,144 +1,460 @@
+<!-- HOME TEMPLATE -->
 {% extends 'layout.html' %}
 {% load static %}
 
 {% block body %}
-<div class="container py-4">
-
+<div class="container py-5">
     <!-- Hero Section -->
     <div class="text-center mb-5">
-        <h1 class="mb-3" style="color: var(--primary-green); font-weight:bold;">Django M-Pesa STK Push</h1>
-        <p class="mb-4 text-secondary">Seamless mobile money integration for your Django applications</p>
-        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
-            <a href="{% url 'stkpush:stk' %}" class="btn btn-primary mb-2">
-                <i class="fas fa-credit-card me-1"></i>Start Payment
+        <h1 class="display-4 fw-bold mb-3">
+            <span class="gradient-text">Django M-Pesa STK Push</span>
+        </h1>
+        <p class="lead mb-4">Seamless mobile payment integration for your Django applications</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+            <a href="{% url 'stkpush:stk' %}" class="btn btn-primary">
+                <i class="fas fa-credit-card"></i>Start Payment
+                <small>Initiate a secure M-Pesa transaction</small>
             </a>
-            <a href="{% url 'stkpush:token' %}" class="btn btn-outline-success mb-2">
-                <i class="fas fa-key me-1"></i>View Token
+            <a href="{% url 'stkpush:token' %}" class="btn btn-outline-primary">
+                <i class="fas fa-key"></i>View Token
+                <small>Generate and manage API access tokens</small>
             </a>
         </div>
     </div>
 
     <!-- Features Section -->
-    <div class="row text-center mb-5">
-        <div class="col-md-4 mb-3">
-            <h5 style="color: var(--primary-green); font-weight:bold;">Secure Transactions</h5>
-            <p class="text-secondary">Bank-grade security with end-to-end encryption through M-Pesa's secure infrastructure.</p>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-shield-alt fa-2x gradient-text"></i>
+                    </div>
+                    <h5 class="fw-bold text-primary-soft">Secure Transactions</h5>
+                    <p class="text-secondary">Bank-grade security with end-to-end encryption via M-Pesa's infrastructure.</p>
+                </div>
+            </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <h5 style="color: var(--primary-green); font-weight:bold;">Lightning Fast</h5>
-            <p class="text-secondary">Instant payment processing with real-time notifications and immediate confirmations.</p>
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-bolt fa-2x gradient-text"></i>
+                    </div>
+                    <h5 class="fw-bold text-primary-soft">Lightning Fast</h5>
+                    <p class="text-secondary">Instant payment processing with real-time notifications.</p>
+                </div>
+            </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <h5 style="color: var(--primary-green); font-weight:bold;">Developer Friendly</h5>
-            <p class="text-secondary">Easy integration with simple tools and clear documentation for developers.</p>
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-code fa-2x gradient-text"></i>
+                    </div>
+                    <h5 class="fw-bold text-primary-soft">Developer Friendly</h5>
+                    <p class="text-secondary">Simple integration with comprehensive documentation.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Stats Section -->
-    <div class="row text-center mb-5">
-        <div class="col-6 col-md-3 mb-3">
-            <div>
-                <div style="font-size: 2rem; font-weight:bold;">99.9%</div>
+    <div class="row g-4 text-center mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card p-3 stats-card">
+                <div class="display-6 fw-bold">99.9%</div>
                 <div class="text-secondary">Uptime</div>
             </div>
         </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div>
-                <div style="font-size: 2rem; font-weight:bold;">&lt;2s</div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 stats-card">
+                <div class="display-6 fw-bold">&lt;2s</div>
                 <div class="text-secondary">Response Time</div>
             </div>
         </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div>
-                <div style="font-size: 2rem; font-weight:bold;">24/7</div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 stats-card">
+                <div class="display-6 fw-bold">24/7</div>
                 <div class="text-secondary">Support</div>
             </div>
         </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div>
-                <div style="font-size: 2rem; font-weight:bold;">100%</div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 stats-card">
+                <div class="display-6 fw-bold">100%</div>
                 <div class="text-secondary">Secure</div>
             </div>
         </div>
     </div>
 
-    <!-- Welcome Message -->
-    <div class="text-center mb-5">
-        <h3 style="color: var(--primary-green); font-weight:bold;">Enjoy Fellas!</h3>
-        <p class="text-secondary mb-3">Experience the power of seamless mobile payments with our Django M-Pesa integration.</p>
-
-        <!-- Go Live Resources -->
-        <h5 style="color: var(--primary-green); font-weight:bold;">Need to Go Live?</h5>
-        <p class="text-secondary mb-3">Check these guides for documentation and step-by-step instructions:</p>
-        <div class="d-flex flex-wrap justify-content-center gap-2">
-            <a href="https://cloudrebue.co.ke/how-to-go-live-on-daraja-dev-portal-mpesa/" 
-               target="_blank" class="btn btn-outline-primary mb-2">
-               Cloudrebue Guide
-            </a>
-            <a href="https://mpesa-docs.vercel.app/go-live" 
-               target="_blank" class="btn btn-outline-primary mb-2">
-               Official Daraja Docs
-            </a>
-            <a href="https://intasend.com/payments/m-pesa-api-integration-step-by-step-guide" 
-               target="_blank" class="btn btn-outline-primary mb-2">
-               IntaSend Guide
-            </a>
+    <!-- Common Errors Section -->
+    <div class="mb-5">
+        <h3 class="fw-bold mb-4 gradient-text">Common Integration Errors</h3>
+        <div class="accordion" id="errorAccordion">
+            <div class="accordion-item glass mb-3">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#error1" aria-expanded="true" aria-controls="error1">
+                        <i class="fas fa-exclamation-triangle me-3" style="color: var(--accent);"></i>
+                        Error 404.001.03: Invalid Access Token
+                    </button>
+                </h2>
+                <div id="error1" class="accordion-collapse collapse show" data-bs-parent="#errorAccordion">
+                    <div class="accordion-body">
+                        <div class="error-content">
+                            <div class="mb-3">
+                                <strong><i class="fas fa-search me-2"></i>Cause:</strong> 
+                                Invalid or expired consumer key/secret credentials.
+                            </div>
+                            <div class="mb-3">
+                                <strong><i class="fas fa-wrench me-2"></i>Solution:</strong> 
+                                Verify your consumer key and secret in the M-Pesa Daraja portal. Ensure proper configuration of credentials.
+                            </div>
+                            <div class="mb-3">
+                                <strong><i class="fas fa-lightning-bolt me-2"></i>Quick Fix:</strong> 
+                                Contact <a href="mailto:apisupport@safaricom.co.ke" class="text-primary">apisupport@safaricom.co.ke</a> for assistance.
+                            </div>
+                            <div class="resources-section">
+                                <strong><i class="fas fa-book me-2"></i>Resources:</strong>
+                                <ul class="mt-2">
+                                    <li><a href="https://github.com/osenco/osen-wc-mpesa/issues/10" target="_blank" class="resource-link">Github Community</a> - Different solution approaches from several people</li>
+                                </ul>
+                                <ul class="mt-2">
+                                    <li><a href="https://codewithriz.com/blog/solving-invalid-access-token-error-mpesa-live-api" target="_blank" class="resource-link">CodeWithRiz Blog</a> - Step-by-step guide to resolve token errors</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item glass mb-3">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#error2" aria-expanded="false" aria-controls="error2">
+                        <i class="fas fa-cog me-3" style="color: var(--primary-green);"></i>
+                        Missing grant_type Parameter
+                    </button>
+                </h2>
+                <div id="error2" class="accordion-collapse collapse" data-bs-parent="#errorAccordion">
+                    <div class="accordion-body">
+                        <div class="error-content">
+                            <div class="mb-3">
+                                <strong><i class="fas fa-search me-2"></i>Cause:</strong> 
+                                Missing <code class="code-snippet">grant_type=client_credentials</code> in the live endpoint URL.
+                            </div>
+                            <div class="mb-3">
+                                <strong><i class="fas fa-wrench me-2"></i>Solution:</strong> 
+                                Ensure the token generation URL includes <code class="code-snippet">generate?grant_type=client_credentials</code>. 
+                                <br><br>
+                                Example: <code class="code-snippet">https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials</code>
+                            </div>
+                            <div class="resources-section">
+                                <strong><i class="fas fa-book me-2"></i>Resources:</strong>
+                                <ul class="mt-2">
+                                    <li><a href="https://peternjeru.co.ke/blog/m-pesa-daraja-api-credentials/" target="_blank" class="resource-link">Peter Njeru Blog</a> - Guide on setting up API credentials correctly</li>
+                                </ul>
+                                <ul class="mt-2">
+                                    <li><a href="https://www.youtube.com/watch?v=gIyzdD6Tk6Q" target="_blank" class="resource-link">KenTech Solutions</a> - Video tutorial on setting up API credentials correctly</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Go Live Resources -->
+    <div class="text-center mb-5">
+        <h3 class="fw-bold mb-4 gradient-text">Ready to Go Live?</h3>
+        <p class="text-secondary mb-4">Explore these comprehensive guides to deploy your M-Pesa integration:</p>
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-3">
+                <a href="https://cloudrebue.co.ke/how-to-go-live-on-daraja-dev-portal-mpesa/" target="_blank" class="btn btn-outline-primary w-100 resource-btn">
+                    <i class="fas fa-book mb-2"></i>
+                    <div class="fw-bold">Cloudrebue Guide</div>
+                    <small>Step-by-step instructions for Daraja portal setup</small>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="https://mpesa-docs.vercel.app/go-live" target="_blank" class="btn btn-outline-primary w-100 resource-btn">
+                    <i class="fas fa-file-alt mb-2"></i>
+                    <div class="fw-bold">Official Daraja Docs</div>
+                    <small>Official documentation for M-Pesa API integration</small>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="https://intasend.com/payments/m-pesa-api-integration-step-by-step-guide" target="_blank" class="btn btn-outline-primary w-100 resource-btn">
+                    <i class="fas fa-route mb-2"></i>
+                    <div class="fw-bold">IntaSend Guide</div>
+                    <small>Practical guide for M-Pesa payment integration</small>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a href="https://peternjeru.co.ke/safdaraja/ui/" target="_blank" class="btn btn-outline-primary w-100 resource-btn">
+                    <i class="fas fa-desktop mb-2"></i>
+                    <div class="fw-bold">Peter Njeru Guide</div>
+                    <small>Dcumentation on building full M-Pesa Daraja logic. I mean everything.</small>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
 
+{% block extra_css %}
 <style>
-    :root {
-        --primary-green: #00A651;
-        --primary-dark: #008c45;
-        --text-dark: #333;
-        --text-light: #666;
-    }
+/* Enhanced feature cards */
+.feature-card {
+    transition: var(--transition);
+    cursor: pointer;
+}
 
-    /* Buttons */
-    .btn-primary {
-        background-color: var(--primary-green);
-        border: none;
-        padding: 0.6rem 1.5rem;
-        border-radius: 0.25rem;
-        font-weight: 600;
-    }
-    .btn-primary:hover {
-        background-color: var(--primary-dark);
-    }
-    .btn-outline-success {
-        border: 2px solid var(--primary-green);
-        color: var(--primary-green);
-        padding: 0.6rem 1.5rem;
-        border-radius: 0.25rem;
-        font-weight: 600;
-    }
-    .btn-outline-success:hover {
-        background-color: var(--primary-green);
-        color: white;
-    }
-    .btn-outline-primary {
-        border: 2px solid var(--primary-green);
-        color: var(--primary-green);
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: 0.3s;
-    }
-    .btn-outline-primary:hover {
-        background-color: var(--primary-green);
-        color: white;
-        text-decoration: none;
-    }
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--glow-hover);
+}
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .btn {
-            width: 100%;
-        }
-        .d-flex.flex-wrap { flex-direction: column; align-items: center; }
+.feature-icon {
+    transition: var(--transition);
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+/* Enhanced accordion styling */
+.accordion-button {
+    font-size: 1.1rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.accordion-button i {
+    font-size: 1.2rem;
+}
+
+.error-content {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-sm);
+    border-left: 3px solid var(--primary-green);
+}
+
+.code-snippet {
+    background: var(--background-elevated);
+    color: var(--accent);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.9em;
+    border: 1px solid var(--border);
+}
+
+.resource-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-hover);
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-fast);
+    margin-bottom: 0.5rem;
+    text-decoration: none !important;
+}
+
+.resource-link:hover {
+    background: var(--surface-elevated);
+    transform: translateX(5px);
+}
+
+.resource-link::before {
+    content: '🔗';
+    font-size: 0.9rem;
+}
+
+.resources-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.resources-section li {
+    margin-bottom: 0.75rem;
+}
+
+/* Enhanced resource buttons */
+.resource-btn {
+    height: auto;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    transition: var(--transition);
+}
+
+.resource-btn i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem !important;
+    transition: var(--transition-fast);
+}
+
+.resource-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--glow);
+}
+
+.resource-btn:hover i {
+    transform: scale(1.2);
+}
+
+/* Enhanced stats cards */
+.stats-card .display-6 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Improved responsive design */
+@media (max-width: 768px) {
+    .resource-btn {
+        min-height: 120px;
+        padding: 1.25rem 0.75rem;
     }
+    
+    .resource-btn i {
+        font-size: 1.5rem;
+    }
+    
+    .error-content {
+        padding: 1rem;
+    }
+    
+    .accordion-button {
+        font-size: 1rem;
+        padding: 1rem 1.25rem;
+    }
+}
+
+/* Loading animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feature-card,
+.stats-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.feature-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.feature-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+/* Improved text hierarchy */
+.text-primary-soft {
+    color: var(--text-primary-soft) !important;
+}
+
+/* Enhanced hover states for better UX */
+.accordion-item:hover {
+    box-shadow: var(--shadow-soft);
+    border-color: var(--border-hover);
+}
+
+.accordion-button:hover {
+    background: var(--surface-elevated) !important;
+}
 </style>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced accordion interactions
+    const accordionButtons = document.querySelectorAll('.accordion-button');
+    accordionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            
+            // Add subtle animation to the icon
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+        });
+    });
+
+    // Enhanced feature card interactions
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const icon = this.querySelector('.feature-icon i');
+            if (icon) {
+                icon.style.transform = 'scale(1.2) rotate(5deg)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            const icon = this.querySelector('.feature-icon i');
+            if (icon) {
+                icon.style.transform = 'scale(1) rotate(0deg)';
+            }
+        });
+    });
+
+    // Enhanced resource button interactions
+    const resourceButtons = document.querySelectorAll('.resource-btn');
+    resourceButtons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.style.transform = 'scale(1.3) translateY(-5px)';
+            }
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.style.transform = 'scale(1) translateY(0)';
+            }
+        });
+    });
+
+    // Smooth scroll for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Add loading state simulation for demo purposes
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}  

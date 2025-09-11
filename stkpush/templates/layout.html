@@ -1,95 +1,531 @@
-<!-- layout.html -->
-{% load static %}
+<!-- LAYOUT.HTML -->
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>M-Pesa Payment Gateway</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary-green: #00a651;
-            --primary-dark: #008a43;
-            --light-bg: #f8fffe;
+            --primary-green: #34c759;
+            --primary-green-dark: #2ca64e;
+            --primary-green-light: #48d36d;
+            --accent: #a3e635;
+            --accent-dark: #8bc34a;
+            --surface: rgba(255, 255, 255, 0.06);
+            --surface-elevated: rgba(255, 255, 255, 0.1);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --background: #0f0f0f;
+            --background-light: #1a1a1a;
+            --background-elevated: #242424;
+            --text-primary: #ffffff;
+            --text-primary-soft: #f8f9fa;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --text-disabled: rgba(255, 255, 255, 0.4);
+            --border: rgba(255, 255, 255, 0.12);
+            --border-light: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(52, 199, 89, 0.3);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.32);
+            --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --glow: 0 0 20px rgba(52, 199, 89, 0.25);
+            --glow-hover: 0 0 30px rgba(52, 199, 89, 0.4);
+            --border-radius: 1.2rem;
+            --border-radius-sm: 0.8rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--light-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(52, 199, 89, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(163, 230, 53, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            line-height: 1.6;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Navbar */
         .navbar {
-            background-color: var(--primary-green);
-            padding: 0.75rem 1rem;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            background: rgba(26, 26, 26, 0.98);
+            box-shadow: var(--shadow-soft);
         }
 
         .navbar-brand {
-            color: white;
-            font-weight: bold;
+            color: var(--text-primary) !important;
+            font-weight: 700;
             font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .navbar-brand i {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.7rem;
+            filter: drop-shadow(0 0 8px rgba(52, 199, 89, 0.3));
+            transition: var(--transition);
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-1px);
+        }
+
+        .navbar-brand:hover i {
+            filter: drop-shadow(var(--glow));
+            transform: scale(1.05);
         }
 
         .navbar-nav .nav-link {
-            color: white;
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition-fast);
+            position: relative;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            overflow: hidden;
+        }
+
+        .navbar-nav .nav-link i {
+            margin-right: 0.5rem;
+            width: 16px;
+            transition: var(--transition-fast);
+        }
+
+        .navbar-nav .nav-link small {
+            font-size: 0.75rem;
+            color: var(--text-muted);
             margin-left: 0.5rem;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: var(--transition-fast);
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--text-primary) !important;
+            background: var(--surface-hover);
+            transform: translateY(-1px);
+        }
+
+        .navbar-nav .nav-link:hover small {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .navbar-nav .nav-link:hover i {
+            color: var(--primary-green);
+            transform: scale(1.1);
         }
 
         .navbar-nav .nav-link.activated {
-            text-decoration: underline;
-            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            color: var(--text-primary) !important;
+            font-weight: 600;
+            box-shadow: var(--glow);
         }
 
-        /* Main content */
+        .navbar-nav .nav-link.activated small {
+            opacity: 1;
+            transform: translateX(0);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .navbar-toggler {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: var(--border-radius-sm);
+            background: transparent;
+            transition: var(--transition-fast);
+        }
+
+        .navbar-toggler:hover {
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: var(--glow);
+        }
+
         main {
             flex-grow: 1;
-            padding: 2rem 1rem;
+            padding: 3rem 0;
         }
 
-        /* Footer */
+        .display-4 {
+            font-weight: 800;
+            color: var(--text-primary-soft);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .lead {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary-soft);
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px) saturate(180%);
+            transition: var(--transition);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            opacity: 0.4;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .card:hover::before {
+            opacity: 0.8;
+        }
+
+        .card-body {
+            color: var(--text-primary-soft);
+        }
+
+        .card-body .text-secondary {
+            color: var(--text-secondary) !important;
+        }
+
+        .btn {
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            padding: 0.875rem 1.75rem;
+            transition: var(--transition);
+            border: none;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn i {
+            transition: var(--transition-fast);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: var(--transition);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn small {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-left: 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            color: var(--text-primary);
+            box-shadow: var(--glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-hover);
+            background: linear-gradient(135deg, var(--primary-green-light), var(--accent));
+        }
+
+        .btn-primary:hover i {
+            transform: scale(1.1);
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid var(--primary-green);
+            color: var(--primary-green);
+            transition: var(--transition);
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
+            border-color: transparent;
+        }
+
+        .btn-outline-primary:hover i {
+            transform: scale(1.1);
+        }
+
+        .glass {
+            background: var(--surface);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+        }
+
         .footer {
-            background-color: var(--primary-dark);
-            color: white;
-            padding: 1rem 0;
-            text-align: center;
+            background: var(--background-light);
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 2rem 0;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            opacity: 0.3;
+        }
+
+        .accordion-button {
+            background: transparent !important;
+            color: var(--text-primary-soft) !important;
+            border: none;
+            font-weight: 500;
+            transition: var(--transition-fast);
+        }
+
+        .accordion-button:hover {
+            background: var(--surface-hover) !important;
+        }
+
+        .accordion-button::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+            transition: var(--transition-fast);
+        }
+
+        .accordion-button:not(.collapsed)::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2334c759'%3e%3cpath fill-rule='evenodd' d='M1.646 11.354a.5.5 0 0 1 0-.708L7.293 5H14.5a.5.5 0 0 1 0 1H7.293l5.646 5.646a.5.5 0 0 1-.708.708l-6-6z'/%3e%3c/svg%3e");
+        }
+
+        .accordion-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .accordion-item:hover {
+            border-color: var(--border-hover);
+        }
+
+        .accordion-body {
+            color: var(--text-secondary);
+        }
+
+        .accordion-body p {
+            margin-bottom: 1rem;
+        }
+
+        .accordion-body strong {
+            color: var(--text-primary-soft);
+        }
+
+        .accordion-body a {
+            color: var(--primary-green);
+            text-decoration: none;
+            transition: var(--transition-fast);
+        }
+
+        .accordion-body a:hover {
+            color: var(--primary-green-light);
+            text-decoration: underline;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: var(--glow); }
+            50% { box-shadow: var(--glow-hover); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 2rem 0;
+            }
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            .navbar-nav .nav-link {
+                margin: 0.25rem 0;
+                padding: 0.75rem 1rem !important;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .navbar-nav .nav-link small {
+                margin-left: 0;
+                margin-top: 0.25rem;
+                opacity: 1;
+                transform: translateX(0);
+            }
+            .btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+            .display-4 {
+                font-size: 2.5rem;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-green-dark);
+        }
+
+        .text-primary { color: var(--text-primary-soft) !important; }
+        .text-secondary { color: var(--text-secondary) !important; }
+        .text-muted { color: var(--text-muted) !important; }
+
+        /* Gradient text utility */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Improved stats cards */
+        .stats-card {
+            transition: var(--transition);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .stats-card .display-6 {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
         }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg" id="mainNavbar">
+        <div class="container">
             <a class="navbar-brand" href="{% url 'stkpush:home' %}">
-                <i class="fas fa-mobile-alt me-2"></i>Django M-Pesa Gateway
+                <i class="fas fa-mobile-alt floating"></i>
+                M-Pesa Gateway
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars" style="color: var(--text-primary);"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if navbar == 'home' %} activated {% endif %}" href="{% url 'stkpush:home' %}">
-                            <i class="fas fa-home me-1"></i>Home
+                        <a class="nav-link {% if navbar == 'home' %}activated{% endif %}" href="{% url 'stkpush:home' %}">
+                            <i class="fas fa-home"></i>Home
+                            <small>Dashboard & Overview</small>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if navbar == 'token' %} activated {% endif %}" href="{% url 'stkpush:token' %}">
-                            <i class="fas fa-key me-1"></i>Token
+                        <a class="nav-link {% if navbar == 'token' %}activated{% endif %}" href="{% url 'stkpush:token' %}">
+                            <i class="fas fa-key"></i>Token
+                            <small>Manage API Tokens</small>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if navbar == 'stk' %} activated {% endif %}" href="{% url 'stkpush:stk' %}">
-                            <i class="fas fa-credit-card me-1"></i>Pay Here
+                        <a class="nav-link {% if navbar == 'stk' %}activated{% endif %}" href="{% url 'stkpush:stk' %}">
+                            <i class="fas fa-credit-card"></i>Payment
+                            <small>Initiate Transactions</small>
                         </a>
                     </li>
                 </ul>
@@ -97,18 +533,118 @@
         </div>
     </nav>
 
-    <!-- Main content -->
     <main>
         {% block body %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p class="mb-0">&copy; 2024 M-Pesa Gateway. All rights reserved.</p>
+    <footer class="footer position-relative">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-shield-alt gradient-text"></i>
+                        <span>Secured by M-Pesa</span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                    <small>&copy; 2025 M-Pesa Gateway. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navbar scroll effect
+            const navbar = document.getElementById('mainNavbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+
+            // Enhanced card hover effects
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px) scale(1.01)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Button ripple effect
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.25);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+
+            // Smooth accordion transitions
+            const accordionButtons = document.querySelectorAll('.accordion-button');
+            accordionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    
+                    setTimeout(() => {
+                        if (!isExpanded) {
+                            this.style.background = 'var(--surface-elevated)';
+                        } else {
+                            this.style.background = 'transparent';
+                        }
+                    }, 150);
+                });
+            });
+
+            // Intersection Observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe cards for entrance animations
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.opacity = '0.8';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>
