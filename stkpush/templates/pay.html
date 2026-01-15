@@ -105,26 +105,54 @@
     color: var(--text-secondary);
 }
 .form-control {
-    background: var(--surface);
+    background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid var(--border);
     border-radius: var(--border-radius-sm);
-    color: var(--text-primary);
+    color: #ffffff !important;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
     transition: var(--transition-fast);
+}
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 .form-control:focus {
     border-color: var(--primary-green);
     box-shadow: var(--glow);
+    background: rgba(255, 255, 255, 0.15) !important;
     outline: none;
+    color: #ffffff !important;
 }
 .input-icon {
     position: absolute;
     left: 0.75rem;
     color: var(--text-muted);
+    z-index: 10;
 }
 .form-text {
     color: var(--text-muted);
     font-size: 0.85rem;
+}
+#polling-status {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--border-radius-sm);
+    display: none;
+    text-align: center;
+}
+.status-pending {
+    background: rgba(255, 202, 44, 0.1);
+    border: 1px solid rgba(255, 202, 44, 0.3);
+    color: #ffca2c;
+}
+.status-success {
+    background: rgba(52, 199, 89, 0.1);
+    border: 1px solid rgba(52, 199, 89, 0.3);
+    color: #34c759;
+}
+.status-failed {
+    background: rgba(255, 77, 79, 0.1);
+    border: 1px solid rgba(255, 77, 79, 0.3);
+    color: #ff4d4f;
 }
 
 /* Button Styling */
@@ -400,6 +428,14 @@
                                 <span>Processing...</span>
                             </div>
                         </button>
+                        
+                        <div id="polling-status">
+                            <div class="status-icon mb-2">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div class="status-text">Waiting for payment...</div>
+                        </div>
+
                         <div class="payment-info">
                             <div class="info-item"><i class="fas fa-clock"></i>Instant processing</div>
                             <div class="info-item"><i class="fas fa-shield-alt"></i>256-bit encryption</div>
@@ -481,6 +517,9 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Check for checkout_request_id from Django context
+    const checkoutRequestId = "{{ checkout_request_id|default:'' }}";
+    
     // Copy to clipboard functionality
     function copyToClipboard(elementId) {
         const codeElement = document.querySelector(`#${elementId} pre code`);
@@ -497,6 +536,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission loading state
     const paymentForm = document.getElementById('payment-form');
     const payButton = document.getElementById('pay-button');
+    const pollingStatus = document.getElementById('polling-status');
+    const statusIcon = pollingStatus.querySelector('.status-icon i');
+    const statusText = pollingStatus.querySelector('.status-text');
+
     paymentForm.addEventListener('submit', function() {
         payButton.classList.add('loading');
         payButton.disabled = true;
@@ -507,6 +550,70 @@ document.addEventListener('DOMContentLoaded', function() {
         payButton.classList.remove('loading');
         payButton.disabled = false;
     }, true);
+
+    // Polling Logic
+    if (checkoutRequestId) {
+        startPolling(checkoutRequestId);
+    }
+
+    function startPolling(requestId) {
+        // Show polling status
+        pollingStatus.style.display = 'block';
+        pollingStatus.className = 'status-pending';
+        statusIcon.className = 'fas fa-spinner fa-spin';
+        statusText.textContent = 'Waiting for payment confirmation on your phone...';
+        
+        // Disable button while polling
+        payButton.disabled = true;
+        payButton.classList.add('loading');
+
+        let attempts = 0;
+        const maxAttempts = 60; // 2 minutes (assuming 2s interval)
+        
+        const pollInterval = setInterval(() => {
+            attempts++;
+            if (attempts > maxAttempts) {
+                clearInterval(pollInterval);
+                updateStatus('timeout', 'Transaction timed out. Please try again.');
+                return;
+            }
+
+            fetch(`{% url 'stkpush:check_status' %}?checkout_request_id=${requestId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'Success') {
+                        clearInterval(pollInterval);
+                        updateStatus('success', 'Payment Successful! Receipt: ' + (data.receipt_number || ''));
+                    } else if (data.status === 'Failed') {
+                        clearInterval(pollInterval);
+                        updateStatus('failed', 'Payment Failed. ' + (data.result_desc || ''));
+                    }
+                })
+                .catch(err => {
+                    console.error('Polling error:', err);
+                });
+        }, 2000);
+    }
+
+    function updateStatus(type, message) {
+        payButton.classList.remove('loading');
+        payButton.disabled = false;
+        
+        pollingStatus.style.display = 'block';
+        statusText.textContent = message;
+
+        if (type === 'success') {
+            pollingStatus.className = 'status-success';
+            statusIcon.className = 'fas fa-check-circle';
+            // Optional: Redirect or refresh page
+        } else if (type === 'failed') {
+            pollingStatus.className = 'status-failed';
+            statusIcon.className = 'fas fa-times-circle';
+        } else {
+            pollingStatus.className = 'status-pending';
+            statusIcon.className = 'fas fa-exclamation-triangle';
+        }
+    }
 
     // Expose copyToClipboard to global scope
     window.copyToClipboard = copyToClipboard;

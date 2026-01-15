@@ -8,6 +8,8 @@ import re
 import logging
 from decouple import config
 from datetime import datetime
+from .models import Transaction
+from django.views.decorators.csrf import csrf_exempt
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -57,6 +59,7 @@ def token(request):
 
 def pay(request):
     debug_info = {}
+    checkout_request_id = None
 
     if request.method == "POST":
         phone = request.POST.get('phone')
@@ -96,6 +99,10 @@ def pay(request):
         api_url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
         headers = {"Authorization": f"Bearer {access_token}"}
         password, timestamp = LipanaMpesaPassword.generate_password()
+        
+        # Use ngrok callback URL as requested
+        callback_url = "https://ungrateful-tegan-semipoisonously.ngrok-free.dev/callback"
+        
         payload = {
             "BusinessShortCode": LipanaMpesaPassword.Business_short_code,
             "Password": password,
@@ -105,7 +112,7 @@ def pay(request):
             "PartyA": phone,
             "PartyB": LipanaMpesaPassword.Business_short_code,
             "PhoneNumber": phone,
-            "CallBackURL": config('MPESA_CALLBACK_URL'),
+            "CallBackURL": callback_url,
             "AccountReference": "Your Mpesa-Test",
             "TransactionDesc": "Payment for your Company"
         }
@@ -126,6 +133,16 @@ def pay(request):
                 msg = "STK Push sent successfully. Check your phone."
                 messages.success(request, msg)
                 logger.info(msg)
+                
+                # Save transaction
+                checkout_request_id = res_data.get("CheckoutRequestID")
+                Transaction.objects.create(
+                    checkout_request_id=checkout_request_id,
+                    merchant_request_id=res_data.get("MerchantRequestID"),
+                    phone_number=phone,
+                    amount=amount,
+                    status="Pending"
+                )
             else:
                 err_msg = res_data.get('errorMessage') or res_data.get('message') or "Unknown error"
                 messages.error(request, f"STK Push failed: {err_msg}")
@@ -152,20 +169,65 @@ def pay(request):
             messages.error(request, msg)
             logger.exception(msg)
 
-        return render(request, 'pay.html', {'navbar': 'stk', 'debug': debug_info})
+        return render(request, 'pay.html', {'navbar': 'stk', 'debug': debug_info, 'checkout_request_id': checkout_request_id})
 
     return render(request, 'pay.html', {'navbar': 'stk'})
 
 def stk(request):
     return render(request, 'pay.html', {'navbar': 'stk'})
 
+@csrf_exempt
 def callback(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
             logger.info(f"Callback received: {data}")
+            
+            stk_callback = data.get('Body', {}).get('stkCallback', {})
+            checkout_request_id = stk_callback.get('CheckoutRequestID')
+            result_code = stk_callback.get('ResultCode')
+            result_desc = stk_callback.get('ResultDesc')
+            
+            if checkout_request_id:
+                try:
+                    transaction = Transaction.objects.get(checkout_request_id=checkout_request_id)
+                    transaction.result_code = result_code
+                    transaction.result_desc = result_desc
+                    
+                    if result_code == 0:
+                        transaction.status = "Success"
+                        # Extract receipt number if available
+                        items = stk_callback.get('CallbackMetadata', {}).get('Item', [])
+                        for item in items:
+                            if item.get('Name') == 'MpesaReceiptNumber':
+                                transaction.mpesa_receipt_number = item.get('Value')
+                                break
+                    else:
+                        transaction.status = "Failed"
+                    
+                    transaction.save()
+                    logger.info(f"Transaction {checkout_request_id} updated to {transaction.status}")
+                except Transaction.DoesNotExist:
+                    logger.error(f"Transaction with CheckoutRequestID {checkout_request_id} not found")
+            
             return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
         except json.JSONDecodeError:
             logger.error("Failed to parse callback JSON")
             return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400)
     return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid request"}, status=400)
+
+def check_status(request):
+    checkout_request_id = request.GET.get('checkout_request_id')
+    if not checkout_request_id:
+        return JsonResponse({"error": "Missing checkout_request_id"}, status=400)
+    
+    try:
+        transaction = Transaction.objects.get(checkout_request_id=checkout_request_id)
+        return JsonResponse({
+            "status": transaction.status,
+            "result_code": transaction.result_code,
+            "result_desc": transaction.result_desc,
+            "receipt_number": transaction.mpesa_receipt_number
+        })
+    except Transaction.DoesNotExist:
+        return JsonResponse({"error": "Transaction not found"}, status=404)

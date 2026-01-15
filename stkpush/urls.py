@@ -9,4 +9,5 @@ urlpatterns = [
     path('pay/', views.pay, name='pay'),
     path('stk/', views.stk, name='stk'),
     path('callback/', views.callback, name='callback'),
+    path('check-status/', views.check_status, name='check_status'),
 ]
