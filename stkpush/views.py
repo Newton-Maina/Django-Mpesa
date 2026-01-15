@@ -20,9 +20,18 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 def home(request):
+    """
+    Renders the home page of the application.
+    """
     return render(request, 'home.html', {'navbar': 'home'})
 
 def token(request):
+    """
+    Demonstrates retrieving and displaying an M-Pesa Access Token.
+    
+    This view calls the MpesaAccessToken helper to get a valid token
+    and renders it on the screen. It helps in verifying credentials.
+    """
     try:
         access_token = MpesaAccessToken.get_access_token()
         if not access_token:
@@ -58,6 +67,20 @@ def token(request):
 
 
 def pay(request):
+    """
+    Handles the STK Push payment process.
+    
+    GET: Renders the payment form.
+    POST: Processes the form data, initiates an STK Push via Safaricom API, 
+          and handles the immediate response (synchronous).
+          
+    Key steps:
+    1. Validates phone number and amount.
+    2. Generates an access token.
+    3. Constructs the API payload (Shortcode, Timestamp, Password, etc.).
+    4. Sends the request to Safaricom's STK Push endpoint.
+    5. Stores the initial transaction details in the database.
+    """
     debug_info = {}
     checkout_request_id = None
 
@@ -100,8 +123,8 @@ def pay(request):
         headers = {"Authorization": f"Bearer {access_token}"}
         password, timestamp = LipanaMpesaPassword.generate_password()
         
-        # Use ngrok callback URL as requested
-        callback_url = "https://ungrateful-tegan-semipoisonously.ngrok-free.dev/callback"
+        # Use callback URL from environment
+        callback_url = config('MPESA_CALLBACK_URL')
         
         payload = {
             "BusinessShortCode": LipanaMpesaPassword.Business_short_code,
@@ -174,10 +197,21 @@ def pay(request):
     return render(request, 'pay.html', {'navbar': 'stk'})
 
 def stk(request):
+    """
+    Alias view for the pay page.
+    """
     return render(request, 'pay.html', {'navbar': 'stk'})
 
 @csrf_exempt
 def callback(request):
+    """
+    Process the asynchronous callback from Safaricom.
+    
+    This endpoint is hit by Safaricom's servers after the user interacts (enters PIN or cancels) 
+    with the STK push on their phone.
+    
+    It updates the transaction status in the database based on the ResultCode.
+    """
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -217,6 +251,12 @@ def callback(request):
     return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid request"}, status=400)
 
 def check_status(request):
+    """
+    API endpoint to check the status of a transaction.
+    
+    Used by the frontend to poll for updates on a specific transaction
+    (e.g., waiting for the user to enter their PIN).
+    """
     checkout_request_id = request.GET.get('checkout_request_id')
     if not checkout_request_id:
         return JsonResponse({"error": "Missing checkout_request_id"}, status=400)
