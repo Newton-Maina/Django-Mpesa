@@ -1,5 +1,7 @@
 # Django-MPESA (Daraja 3.0 Ready)
 
+![Project Preview](images/og_image.png)
+
 This project is a comprehensive reference implementation for integrating **Safaricom's M-Pesa (Daraja) APIs** into a Django application. 
 
 It was built to solve common issues developers face when creating custom Daraja API integrations, providing a clean, working example of how to authenticate and process transactions correctly.
